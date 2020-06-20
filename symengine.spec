@@ -4,19 +4,22 @@
 #
 Name     : symengine
 Version  : 0.6.0
-Release  : 5
+Release  : 6
 URL      : https://github.com/symengine/symengine/archive/v0.6.0/symengine-0.6.0.tar.gz
 Source0  : https://github.com/symengine/symengine/archive/v0.6.0/symengine-0.6.0.tar.gz
 Summary  : Symbolic manipulation library.
 Group    : Development/Tools
 License  : BSD-3-Clause GPL-2.0-with-bison-exception MIT
 Requires: symengine-lib = %{version}-%{release}
+Requires: symengine-license = %{version}-%{release}
 BuildRequires : binutils-dev
 BuildRequires : boost-dev
 BuildRequires : buildreq-cmake
 BuildRequires : cmake
 BuildRequires : doxygen
+BuildRequires : extra-cmake-modules-data
 BuildRequires : gmp-dev
+BuildRequires : llvm-dev
 BuildRequires : mpc-dev
 BuildRequires : mpfr-dev
 
@@ -37,9 +40,18 @@ dev components for the symengine package.
 %package lib
 Summary: lib components for the symengine package.
 Group: Libraries
+Requires: symengine-license = %{version}-%{release}
 
 %description lib
 lib components for the symengine package.
+
+
+%package license
+Summary: license components for the symengine package.
+Group: Default
+
+%description license
+license components for the symengine package.
 
 
 %prep
@@ -51,7 +63,7 @@ export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1582230634
+export SOURCE_DATE_EPOCH=1592659895
 mkdir -p clr-build
 pushd clr-build
 export GCC_IGNORE_WERROR=1
@@ -59,8 +71,8 @@ export AR=gcc-ar
 export RANLIB=gcc-ranlib
 export NM=gcc-nm
 export CFLAGS="$CFLAGS -O3 -ffat-lto-objects -flto=4 "
-export FCFLAGS="$CFLAGS -O3 -ffat-lto-objects -flto=4 "
-export FFLAGS="$CFLAGS -O3 -ffat-lto-objects -flto=4 "
+export FCFLAGS="$FFLAGS -O3 -ffat-lto-objects -flto=4 "
+export FFLAGS="$FFLAGS -O3 -ffat-lto-objects -flto=4 "
 export CXXFLAGS="$CXXFLAGS -O3 -ffat-lto-objects -flto=4 "
 %cmake .. -DCMAKE_BUILD_TYPE:STRING="Release" \
 -DBUILD_SHARED_LIBS:BOOL=ON \
@@ -72,7 +84,7 @@ export CXXFLAGS="$CXXFLAGS -O3 -ffat-lto-objects -flto=4 "
 -DWITH_OPENMP:BOOL=ON \
 -DINTEGER_CLASS:STRING=gmp \
 -DWITH_LLVM:BOOL=OFF
-make  %{?_smp_mflags}  VERBOSE=1
+make  %{?_smp_mflags}
 popd
 
 %check
@@ -83,8 +95,10 @@ export no_proxy=localhost,127.0.0.1,0.0.0.0
 cd clr-build; make test
 
 %install
-export SOURCE_DATE_EPOCH=1582230634
+export SOURCE_DATE_EPOCH=1592659895
 rm -rf %{buildroot}
+mkdir -p %{buildroot}/usr/share/package-licenses/symengine
+cp %{_builddir}/symengine-0.6.0/LICENSE %{buildroot}/usr/share/package-licenses/symengine/8db04d63d3e138c7526da26d064db499a117bec6
 pushd clr-build
 %make_install
 popd
@@ -181,3 +195,7 @@ popd
 %defattr(-,root,root,-)
 /usr/lib64/libsymengine.so.0.6
 /usr/lib64/libsymengine.so.0.6.0
+
+%files license
+%defattr(0644,root,root,0755)
+/usr/share/package-licenses/symengine/8db04d63d3e138c7526da26d064db499a117bec6
